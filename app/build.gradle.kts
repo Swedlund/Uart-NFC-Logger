@@ -37,6 +37,7 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation("com.gitee.lochy:dkcloudid-uart-android-sdk:v2.2.4")
+    implementation("androidx.core:core:1.7.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

@@ -43,7 +43,7 @@ public class ForegroundService extends Service {
             runnable = new Runnable() {
                 @Override
                 public void run() {
-                    Log.d(TAG, "Is alive");
+                    Log.d(TAG, "Service is alive");
                     handler.postDelayed(this, INTERVAL);
                 }
             };
