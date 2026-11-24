@@ -18,7 +18,7 @@ The intent is sent with the action com.nfclogger.LOG and includes the log messag
 * The service starts on `BOOT_COMPLETED`, vendor quick-boot intents and after app updates, is `START_STICKY`, survives task removal, and is restarted by a 15-minute watchdog alarm if Android ever kills it.
 * The serial port is reopened automatically (with back-off) if it cannot be opened at boot or stops answering; the reader is pinged every 5 minutes.
 * A partial wake lock keeps the UART read thread running with the screen off.
-* Lighter: no AppCompat/Material, R8 minified release (~240 KB instead of ~6 MB), silent minimum-priority notification, SDK debug logging off, log file capped at 1 MB (truncated in place, same format as v1).
+* Lighter: no AppCompat/Material, R8 minified release (~240 KB instead of ~6 MB), silent minimum-priority notification, log file capped at 1 MB (truncated in place, same format as v1).
 
 The broadcast contract is unchanged: action `com.nfclogger.LOG`, extra `log_message` (e.g. `Card detected: 04A1B2C3`, `Card left`).
 
