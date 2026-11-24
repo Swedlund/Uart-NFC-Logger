@@ -19,3 +19,7 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+# DKCloudID UART SDK uses JNI and reflection; keep it intact.
+-keep class com.dk.** { *; }
+-dontwarn com.dk.**
+-keep class com.nfclogger.** { *; }

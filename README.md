@@ -12,3 +12,17 @@ This project supports modules such as DK26ME, DK26ME-ANT, DK25GM, and DK25-ST fr
 
 ## Broadcast intent details
 The intent is sent with the action com.nfclogger.LOG and includes the log message as an extra with the key log_message.
+
+## Reliability (v2.0)
+* The NFC reader is owned by the foreground service, not by the activity. Tags are read from boot without the app ever being opened, and closing the app does not stop reading.
+* The service starts on `BOOT_COMPLETED`, vendor quick-boot intents and after app updates, is `START_STICKY`, survives task removal, and is restarted by a 15-minute watchdog alarm if Android ever kills it.
+* The serial port is reopened automatically (with back-off) if it cannot be opened at boot or stops answering; the reader is pinged every 5 minutes.
+* A partial wake lock keeps the UART read thread running with the screen off.
+* Lighter: no AppCompat/Material, R8 minified release (~240 KB instead of ~6 MB), silent minimum-priority notification, SDK debug logging off, log file capped at 256 KB.
+
+The broadcast contract is unchanged: action `com.nfclogger.LOG`, extra `log_message` (e.g. `Card detected: 04A1B2C3`, `Card left`).
+
+To start the service without opening the UI (e.g. over ADB):
+```
+adb shell am broadcast -n com.nfclogger/.BootReceiver
+```
