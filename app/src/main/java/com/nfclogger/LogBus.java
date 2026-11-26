@@ -19,7 +19,8 @@ import java.util.concurrent.Executors;
 
 /**
  * Sends every log line to Tasker (broadcast com.nfclogger.LOG, extra log_message), keeps the
- * last lines in memory for the UI, and appends to a size-capped file in the background.
+ * last lines in memory for the UI, and appends the bare message to nfc_log.txt in the app's
+ * external files dir (same path and format as v1), truncated in place when it passes 1 MB.
  */
 final class LogBus {
     static final String ACTION_LOG = "com.nfclogger.LOG";
@@ -31,7 +32,7 @@ final class LogBus {
 
     private static final String TAG = "NFC Logger";
     private static final int MEMORY_LINES = 200;
-    private static final long MAX_FILE_BYTES = 256 * 1024;
+    private static final long MAX_FILE_BYTES = 1024 * 1024;
 
     private static final ArrayDeque<String> recent = new ArrayDeque<>();
     private static final Handler main = new Handler(Looper.getMainLooper());
@@ -75,7 +76,8 @@ final class LogBus {
             Listener l = listener;
             if (l != null) l.onLog(line);
         });
-        if (ctx != null) fileWriter.execute(() -> appendToFile(ctx, line));
+        // The file gets the bare message, exactly as v1 wrote it, so tools that read it (Tasker) still match.
+        if (ctx != null) fileWriter.execute(() -> appendToFile(ctx, msg));
     }
 
     static List<String> recentLines() {
@@ -93,14 +95,9 @@ final class LogBus {
             File dir = ctx.getExternalFilesDir(null);
             if (dir == null) dir = ctx.getFilesDir();
             File file = new File(dir, "nfc_log.txt");
-            if (file.length() > MAX_FILE_BYTES) {
-                File old = new File(dir, "nfc_log.old.txt");
-                //noinspection ResultOfMethodCallIgnored
-                old.delete();
-                //noinspection ResultOfMethodCallIgnored
-                file.renameTo(old);
-            }
-            try (FileWriter w = new FileWriter(file, true)) {
+            // Truncate in place instead of renaming, so a file watcher on this path keeps working.
+            boolean append = file.length() <= MAX_FILE_BYTES;
+            try (FileWriter w = new FileWriter(file, append)) {
                 w.append(line).append('\n');
             }
         } catch (Exception e) {

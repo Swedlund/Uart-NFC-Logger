@@ -306,19 +306,24 @@ public class ForegroundService extends Service {
         }
     };
 
-    /** The SDK is chatty at debug level; only keep warnings and errors in logcat. */
+    /**
+     * Forward every SDK log line to logcat unchanged. Tasker profiles match the SDK's own
+     * DeviceManager debug lines (e.g. "/dev/ttyS9接收(7):AA0501CCBA7535"), so these must stay.
+     */
     private final DKLogCallback dkLogCallback = new DKLogCallback() {
         @Override
         public void onReceiveLogI(String tag, String msg) {
+            Log.i(tag != null ? tag : TAG, msg != null ? msg : "Null message received");
         }
 
         @Override
         public void onReceiveLogD(String tag, String msg) {
+            Log.d(tag != null ? tag : TAG, msg != null ? msg : "Null message received");
         }
 
         @Override
         public void onReceiveLogE(String tag, String msg) {
-            Log.e(tag != null ? tag : TAG, msg != null ? msg : "null");
+            Log.e(tag != null ? tag : TAG, msg != null ? msg : "Null message received");
         }
     };
 
